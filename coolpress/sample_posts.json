@@ -1,0 +1,152 @@
+[
+{
+    "model": "auth.user",
+    "pk": 1,
+    "fields": {
+        "password": "bar",
+        "last_login": null,
+        "is_superuser": false,
+        "username": "foo",
+        "first_name": "",
+        "last_name": "",
+        "email": "",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2022-11-08T22:24:56.297Z",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "auth.user",
+    "pk": 2,
+    "fields": {
+        "password": "bar1",
+        "last_login": null,
+        "is_superuser": false,
+        "username": "foo1",
+        "first_name": "",
+        "last_name": "",
+        "email": "",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2022-11-08T22:25:04.975Z",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "press.category",
+    "pk": 1,
+    "fields": {
+        "label": "2",
+        "slug": "1"
+    }
+},
+{
+    "model": "press.category",
+    "pk": 2,
+    "fields": {
+        "label": "3",
+        "slug": "2"
+    }
+},
+{
+    "model": "press.category",
+    "pk": 3,
+    "fields": {
+        "label": "4",
+        "slug": "3"
+    }
+},
+{
+    "model": "press.cooluser",
+    "pk": 1,
+    "fields": {
+        "user": 1,
+        "gravatar_link": "",
+        "github_profile": "https://github.com/aimedvedeva",
+        "gh_repositories": null
+    }
+},
+{
+    "model": "press.cooluser",
+    "pk": 2,
+    "fields": {
+        "user": 2,
+        "gravatar_link": "",
+        "github_profile": "https://github.com/willhelmatiq",
+        "gh_repositories": null
+    }
+},
+{
+    "model": "press.post",
+    "pk": 1,
+    "fields": {
+        "title": "rose",
+        "body": "abracadabra",
+        "image_link": "",
+        "status": "PostStatus.PUBLISHED",
+        "author": 1,
+        "category": 1,
+        "creation_date": "2022-11-08T22:42:05.055Z",
+        "last_update": "2022-11-08T22:42:05.055Z"
+    }
+},
+{
+    "model": "press.post",
+    "pk": 2,
+    "fields": {
+        "title": "mystery",
+        "body": "ktilhu",
+        "image_link": "",
+        "status": "PostStatus.DRAFT",
+        "author": 2,
+        "category": 2,
+        "creation_date": "2022-11-08T22:44:07.022Z",
+        "last_update": "2022-11-08T22:44:07.022Z"
+    }
+},
+{
+    "model": "press.post",
+    "pk": 3,
+    "fields": {
+        "title": "history",
+        "body": "text",
+        "image_link": "",
+        "status": "PostStatus.DRAFT",
+        "author": 2,
+        "category": 3,
+        "creation_date": "2022-11-08T22:45:05.755Z",
+        "last_update": "2022-11-08T22:45:05.755Z"
+    }
+},
+{
+    "model": "press.post",
+    "pk": 4,
+    "fields": {
+        "title": "novel",
+        "body": "blabla",
+        "image_link": "",
+        "status": "PostStatus.PUBLISHED",
+        "author": 2,
+        "category": 1,
+        "creation_date": "2022-11-08T22:45:29.592Z",
+        "last_update": "2022-11-08T22:45:29.592Z"
+    }
+},
+{
+    "model": "press.post",
+    "pk": 5,
+    "fields": {
+        "title": "rose",
+        "body": "textext",
+        "image_link": "",
+        "status": "PostStatus.PUBLISHED",
+        "author": 1,
+        "category": 2,
+        "creation_date": "2022-11-08T22:45:49.013Z",
+        "last_update": "2022-11-08T22:45:49.013Z"
+    }
+}
+]
