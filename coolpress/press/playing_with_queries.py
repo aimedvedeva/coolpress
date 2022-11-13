@@ -15,8 +15,6 @@ def values():
         name = CoolUser.objects.filter(id=id).values_list('user__first_name').first()[0]
         posts = Post.objects.filter(author=id).values_list('body', flat=True)
         characters_sum = sum([len(post) for post in posts])
-        #print(name, ': ', characters_sum, ' characters on ', len(posts), ' posts')
-        #print('-----------------------')
     print(authors_id)
 
 if __name__ == '__main__':
