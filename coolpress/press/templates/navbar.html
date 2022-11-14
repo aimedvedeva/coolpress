@@ -12,6 +12,17 @@
                 <a class="nav-link" href="{% url 'posts-list' %}">News</span></a>
             </li>
 
+                        <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Categories
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    {% for category in categories %}
+                        <a class="dropdown-item" href="#">{{ category.label }}</a>
+                    {% endfor %}
+                </div>
+            </li>
             {% if user.is_authenticated %}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navUser" role="button"
@@ -22,6 +33,14 @@
                                  alt="">
                         {% endif %}
                     </a>
+                                        <div class="dropdown-menu" aria-labelledby="navUser">
+                        <a class="btn btn-danger" href="{% url 'logout' %}">Log Out</a>
+                        <a class="btn" href="{% url 'post-create' %}">create new post</a>
+                    </div>
+                </li>
+            {% else %}
+                <li class="nav-item">
+                    <a class="btn btn-primary" href="{% url 'login' %}">Log In</a>
                 </li>
             {% endif %}
 
