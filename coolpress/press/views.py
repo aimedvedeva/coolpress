@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
-from press.forms import CommentForm, PostForm
+from press.forms import CommentForm, PostForm, CategoryForm
 from press.models import Category, Post, Comment, CoolUser
 from django.db.models import Count
 
@@ -98,3 +98,17 @@ def post_create(request):
             post.save()
             return HttpResponseRedirect(reverse('home'))
     return render(request, 'posts_create.html', {'form': form})
+
+@login_required
+def category_create(request):
+    form = CategoryForm
+    if request.method == 'POST':
+        form = CategoryForm(request.POST)
+        if form.is_valid():
+            label = form.cleaned_data.get('label')
+            slug = form.cleaned_data.get('slug')
+            category = Category.objects.create(label=label, slug=slug, created_by=request.user.cooluser)
+            category.save()
+            return HttpResponseRedirect(reverse('home'))
+    return render(request, 'categories_create.html', {'form': form})
+

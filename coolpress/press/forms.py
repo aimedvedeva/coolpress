@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import ModelForm
 
-from press.models import Post
+from press.models import Post, Category
 
 
 class CommentForm(forms.Form):
@@ -10,6 +10,14 @@ class CommentForm(forms.Form):
     votes = forms.IntegerField(label='Vote the post', min_value=1, max_value=10,
                                widget=forms.NumberInput(attrs={'class': 'form-control'}))
 
+class CategoryForm(ModelForm):
+    class Meta:
+        model = Category
+        fields = ['label', 'slug']
+        widgets = {
+            'label': forms.TextInput(attrs={'class': 'form-control'}),
+            'slug': forms.TextInput(attrs={'class': 'form-control'}),
+        }
 
 class PostForm(ModelForm):
     class Meta:
