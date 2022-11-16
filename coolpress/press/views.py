@@ -5,7 +5,8 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadReque
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.views.generic import TemplateView, ListView
-from rest_framework import viewsets, mixins, permissions
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import viewsets, mixins, permissions, generics, filters
 from rest_framework.viewsets import GenericViewSet
 from press.forms import CommentForm, PostForm, CategoryForm
 from django.db.models import Count
@@ -212,6 +213,8 @@ class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly,
                           IsOwnerOrReadOnly]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['category__id']
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user.cooluser)
@@ -223,4 +226,5 @@ class AuthorsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = CoolUser.objects.alias(posts=Count('post')).filter(posts__gte=1)
     serializer_class = AuthorSerializer
     permission_classes = [permissions.IsAuthenticated]
+
 
