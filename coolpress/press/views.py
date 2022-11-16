@@ -226,5 +226,6 @@ class AuthorsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = CoolUser.objects.alias(posts=Count('post')).filter(posts__gte=1)
     serializer_class = AuthorSerializer
     permission_classes = [permissions.IsAuthenticated]
-
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['post__category__slug']
 
