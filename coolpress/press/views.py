@@ -102,7 +102,7 @@ def post_create(request):
                                    author=request.user.cooluser)
             post.save()
             return HttpResponseRedirect(reverse('home'))
-    return render(request, 'posts_create.html', {'form': form})
+    return render(request, 'posts_create.html', {'my_awesome_form': form})
 
 @login_required
 def category_create(request):
@@ -130,6 +130,14 @@ class PostClassBasedListView(ListView):
     queryset = Post.objects.filter(status=PostStatus.PUBLISHED).order_by('-last_update')
     context_object_name = 'posts_list'
     template_name = 'posts_list.html'
+
+class PostClassAuthorFilteringListView(PostClassBasedListView):
+    paginate_by = 5
+
+    def get_queryset(self):
+        queryset = super(PostClassAuthorFilteringListView, self).get_queryset()
+        author = get_object_or_404(CoolUser, id = self.kwargs['post_author_id'])
+        return queryset.filter(author=author)
 
 
 class PostClassFilteringListView(PostClassBasedListView):

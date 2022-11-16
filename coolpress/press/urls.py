@@ -20,8 +20,8 @@ urlpatterns = [
     path('categories/', views.CategoryListView.as_view(), name='category-list'),
     path('posts/', views.PostClassBasedListView.as_view(), name='post-list'),
     path('posts/<slug:category_slug>', views.PostClassFilteringListView.as_view(), name='post-list-filtered-by-category'),
+    path('posts/author/<int:post_author_id>', views.PostClassAuthorFilteringListView.as_view(), name='post-list-filtered-by-author'),
     path('api-category/<slug:slug>', views.category_api, name='category-api'),
-    path('api-categories/', views.categories_api, name='categories-api'),
     path('api/', include(router.urls)),
     path('api-auth/', include('rest_framework.urls')),
 ]
