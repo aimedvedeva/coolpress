@@ -2,11 +2,12 @@ import datetime
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest, JsonResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, get_list_or_404
 from django.urls import reverse
 from django.views.generic import TemplateView, ListView
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, mixins, permissions, generics, filters
+from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 from press.forms import CommentForm, PostForm, CategoryForm
 from django.db.models import Count
@@ -213,19 +214,32 @@ class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly,
                           IsOwnerOrReadOnly]
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['category__id']
+    def get_queryset(self):
+        queryset = Post.objects.all().filter(status=PostStatus.PUBLISHED).order_by('-creation_date')
+        category_id = self.request.query_params.get('category_id')
+        if category_id is not None:
+            queryset = queryset.filter(category__id=category_id)
+        return queryset
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user.cooluser)
 
-class AuthorsViewSet(viewsets.ReadOnlyModelViewSet):
+class AuthorsViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """
     queryset = CoolUser.objects.alias(posts=Count('post')).filter(posts__gte=1)
     serializer_class = AuthorSerializer
     permission_classes = [permissions.IsAuthenticated]
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['post__category__slug']
+    lookup_field = 'slug'
 
+    def get_queryset(self):
+        queryset = self.queryset
+        if self.kwargs.__len__() > 0:
+            return self.queryset.filter(post__category__slug=self.kwargs['slug'])
+        return self.queryset
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_queryset()
+        serializer = AuthorSerializer(instance, many=True)
+        return Response(serializer.data)
