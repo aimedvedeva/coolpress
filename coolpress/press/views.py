@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 from press.forms import CommentForm, PostForm, CategoryForm
 from django.db.models import Count
-from press.models import Category, Post, Comment, CoolUser, PostStatus
+from press.models import Category, Post, Comment, CoolUser, PostStatus, CommentStatus
 from press.serializers import CategorySerializer, PostSerializer, AuthorSerializer
 
 def home(request):
@@ -51,7 +51,7 @@ def post_detail(request, post_id):
     data = request.POST or {'votes': 10}
     form = CommentForm(data)
 
-    comments = post.comment_set.order_by('-creation_date')
+    comments = post.comment_set.order_by('-creation_date').filter(status=CommentStatus.PUBLISHED)
     return render(request, 'posts_detail.html', {'post_obj': post, 'comment_form': form, 'comments': comments})
 
 @login_required

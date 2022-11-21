@@ -2,7 +2,7 @@ from django.test import TestCase, Client
 
 from django.contrib.auth.models import User
 
-from press.models import Category, Post, CoolUser, PostStatus
+from press.models import Category, Post, CoolUser, PostStatus, Comment, CommentStatus
 
 
 class PostModelTest(TestCase):
@@ -28,3 +28,25 @@ class PostModelTest(TestCase):
         self.assertEqual(self.post.status, PostStatus.DRAFT)
         username = self.post.author.user.username
         self.assertIsNotNone(username)
+
+class CommentModelTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        user = User.objects.create(username='oscar')
+        cu = CoolUser.objects.create(user=user)
+        post = Post.objects.create(category=Category.objects.create(label='Tech', slug='tech'),
+                                   title='a new mac is out there',
+                                   author=cu)
+        cls.user = user
+        cls.post = post
+        cls.cu = cu
+
+        votes = 10
+        comment = Comment.objects.create(votes=votes, post=post, author=cu)
+        cls.comment = comment
+
+    def test_checking_default_status(self):
+        actual = str(self.comment.status)
+
+        expected = CommentStatus.PUBLISHED
+        self.assertEqual(actual, expected)
