@@ -46,9 +46,21 @@ class PostPagesTest(TestCase):
         response = self.client.get(reverse('posts-detail', kwargs={'post_id': self.post.id}))
         self.assertEqual(0, len(response.context['comments'].values()))
 
-
     def test_posts(self):
         response = self.client.get(reverse('posts-list'))
         self.assertEqual(response.status_code, 200)
 
         self.assertEqual(len(response.context['posts_list']), 3)
+
+    def test_check_trending_posts_page(self):
+        response = self.client.get(reverse('posts_trending_list'))
+        self.assertEqual(0, len(response.context['posts_list'].values()))
+
+        for i in range(4):
+            votes = 10
+            comment = Comment.objects.create(votes=votes, post=self.post, author=self.cu)
+
+        response = self.client.get(reverse('posts_trending_list'))
+        self.assertEqual(1, len(response.context['posts_list'].values()))
+
+

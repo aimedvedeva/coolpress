@@ -10,7 +10,7 @@ from rest_framework import viewsets, mixins, permissions, generics, filters
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 from press.forms import CommentForm, PostForm, CategoryForm
-from django.db.models import Count
+from django.db.models import Count, Max
 from press.models import Category, Post, Comment, CoolUser, PostStatus, CommentStatus
 from press.serializers import CategorySerializer, PostSerializer, AuthorSerializer
 
@@ -132,6 +132,13 @@ class PostClassBasedListView(ListView):
     queryset = Post.objects.filter(status=PostStatus.PUBLISHED).order_by('-last_update')
     context_object_name = 'posts_list'
     template_name = 'posts_list.html'
+
+class TrendingPostClassBasedListView(ListView):
+    paginate_by = 2
+    queryset = Post.objects.annotate(count=Count('comment')).filter(count__gte=5).annotate(max_update_time=Max('comment__creation_date')).order_by('max_update_time')
+    context_object_name = 'posts_list'
+    template_name = 'posts_trending_list.html'
+
 
 class PostClassAuthorFilteringListView(PostClassBasedListView):
     paginate_by = 5
