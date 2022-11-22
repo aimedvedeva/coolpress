@@ -6,3 +6,5 @@ django-filter
 
 pyyaml
 uritemplate
+requests
+libgravatar

@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from press.user_info_manager import get_gravatar_image
 
 
 class CoolUser(models.Model):
@@ -7,10 +8,20 @@ class CoolUser(models.Model):
     gravatar_link = models.URLField(null=True, blank=True)
     github_profile = models.URLField(null=True, blank=True)
     gh_repositories = models.IntegerField(null=True, blank=True)
+    gravatar_updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f'{self.user.username}'
 
+    def save(self, *args, **kwargs):
+        super(CoolUser, self).save(*args, **kwargs)
+
+        email = self.user.email
+        if self.gravatar_link is None and email:
+            image_link = get_gravatar_image(email)
+            if image_link:
+                self.gravatar_link = image_link
+                self.save()
 
 class Category(models.Model):
     class Meta:
