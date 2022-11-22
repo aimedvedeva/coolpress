@@ -1,14 +1,15 @@
 from django.contrib.auth.models import User
 from django.db import models
-from press.user_info_manager import get_gravatar_image
-
+from press.user_info_manager import get_gravatar_image, get_github_repositories, get_github_stars
 
 class CoolUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     gravatar_link = models.URLField(null=True, blank=True)
-    github_profile = models.URLField(null=True, blank=True)
+    github_profile = models.CharField(max_length=150, null=True, blank=True)
     gh_repositories = models.IntegerField(null=True, blank=True)
-    gravatar_updated_at = models.DateTimeField(auto_now=True)
+    gravatar_updated_at = models.DateTimeField()
+    gh_stars = models.IntegerField(null=True, blank=True)
+    last_github_check = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f'{self.user.username}'
@@ -23,6 +24,19 @@ class CoolUser(models.Model):
                 self.gravatar_link = image_link
                 self.save()
 
+        if self.gh_repositories is None and self.github_profile:
+            repositories = get_github_repositories(self.github_profile)
+
+            if repositories is not None:
+                self.gh_repositories = repositories
+                self.save()
+
+        if self.gh_stars is None and self.github_profile:
+            stars = get_github_stars(self.github_profile)
+
+            if stars is not None:
+                self.gh_stars = stars
+                self.save()
 class Category(models.Model):
     class Meta:
         verbose_name_plural = 'categories'
