@@ -309,4 +309,6 @@ class PostSearchListView(PostClassBasedListView):
             return filtered_search(queryset, search_text)
 
         return queryset
-
+    @property
+    def search_text(self):
+        return self.request.GET.get('search-text')
