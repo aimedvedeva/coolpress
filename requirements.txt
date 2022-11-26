@@ -3,7 +3,7 @@ django==3.2.7
 djangorestframework
 django-filter
 
-
+wordcloud
 pyyaml
 uritemplate
 requests

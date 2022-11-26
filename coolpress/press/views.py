@@ -10,7 +10,7 @@ from rest_framework import viewsets, mixins, permissions, generics, filters
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 from press.forms import CommentForm, PostForm, CategoryForm
-from django.db.models import Count, Max
+from django.db.models import Count, Max, Q
 from press.models import Category, Post, Comment, CoolUser, PostStatus, CommentStatus
 from press.serializers import CategorySerializer, PostSerializer, AuthorSerializer
 from press.stats_manager import posts_analyzer, comments_analyzer
@@ -49,11 +49,12 @@ def post_detail(request, post_id):
     post = Post.objects.get(id=post_id)
     data = request.POST or {'votes': 10}
     form = CommentForm(data)
-    stats = posts_analyzer(Post.objects.filter(id=post.id)).top(10)
+    stats = posts_analyzer(Post.objects.filter(id=post.id))
+    stats_list = stats.top(10)
     commentstats = comments_analyzer(Comment.objects.filter(post_id=post.id)).top(10)
 
     comments = post.comment_set.order_by('-creation_date').filter(status=CommentStatus.PUBLISHED)
-    return render(request, 'posts_detail.html',{'post_obj': post, 'comment_form': form, 'comments': comments, 'stats': stats, 'commentstats': commentstats})
+    return render(request, 'posts_detail.html',{'post_obj': post, 'comment_form': form, 'comments': comments, 'stats': stats, 'stats_list': stats_list, 'commentstats': commentstats})
 
 def user_detail(request, user_id):
     coolUser = CoolUser.objects.get(user_id=user_id)

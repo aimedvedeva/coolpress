@@ -5,6 +5,7 @@ from collections import Counter
 from django.db.models import QuerySet
 
 from press.models import Post, Comment
+from wordcloud import WordCloud
 
 with open(os.path.join(os.path.dirname(__file__), 'stopwords.json')) as fr:
     file_stopwords = json.load(fr)
@@ -33,6 +34,10 @@ class Stats:
                          key=lambda key_val: (-key_val[1], key_val[0]))
         return results[:limit]
 
+    @property
+    def word_cloud(self):
+        top_words = self.top(20)
+        return WordCloud(colormap='Greens').generate_from_frequencies(dict(top_words))
 
 def posts_analyzer(qs_post: QuerySet[Post], limit=1):
     post_qs_titles = qs_post.values_list('title', flat=True)
