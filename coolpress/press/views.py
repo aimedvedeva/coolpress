@@ -290,3 +290,22 @@ class CategoryAuthors(generics.ListAPIView):
                 cat = Category.objects.get(slug=cslug_or_id)
                 return self.queryset.filter(post__category=cat)
         return self.queryset
+
+
+def filtered_search(queryset, search_text):
+    is_in_title = Q(title__icontains=search_text)
+    is_in_body = Q(body__icontains=search_text)
+    is_in_username = Q(author__user__username__icontains=search_text)
+    is_in_name = Q(author__user__first_name__icontains=search_text)
+    return queryset.filter(is_in_title | is_in_body | is_in_username | is_in_name)
+
+
+class PostSearchListView(PostClassBasedListView):
+    def get_queryset(self):
+        queryset = super(PostSearchListView, self).get_queryset()
+        search_text = self.request.GET.get('search-text')
+        if search_text:
+            return filtered_search(queryset, search_text)
+
+        return queryset
+

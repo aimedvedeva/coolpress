@@ -30,4 +30,5 @@ urlpatterns = [
     path('api-category/<slug:slug>', views.category_api, name='category-api'),
     path('api/', include(router.urls)),
     path('api-auth/', include('rest_framework.urls')),
+    path('posts-search/', views.PostSearchListView.as_view(), name='posts-search'),
 ]
