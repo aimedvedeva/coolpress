@@ -51,10 +51,11 @@ def post_detail(request, post_id):
     form = CommentForm(data)
     stats = posts_analyzer(Post.objects.filter(id=post.id))
     stats_list = stats.top(10)
-    commentstats = comments_analyzer(Comment.objects.filter(post_id=post.id)).top(10)
+    commentstats = comments_analyzer(Comment.objects.filter(post_id=post.id))
+    commentstats_list = commentstats.top(10)
 
     comments = post.comment_set.order_by('-creation_date').filter(status=CommentStatus.PUBLISHED)
-    return render(request, 'posts_detail.html',{'post_obj': post, 'comment_form': form, 'comments': comments, 'stats': stats, 'stats_list': stats_list, 'commentstats': commentstats})
+    return render(request, 'posts_detail.html',{'post_obj': post, 'comment_form': form, 'comments': comments, 'stats': stats, 'stats_list': stats_list, 'commentstats': commentstats, 'commentstats_list': commentstats_list})
 
 def author_details(request, author_id):
     author = get_object_or_404(CoolUser, pk=author_id)

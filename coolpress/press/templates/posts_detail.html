@@ -76,14 +76,14 @@
 {% endif %}
 
 <h1>Comments' statistics</h1>
-{% if commentstats %}
+{% if commentstats or commentstats_list%}
 <table class="table table-striped text-center">
     <thead>
     <th>Word</th>
     <th>Cardinality</th>
     </thead>
     <tbody>
-    {% for word, count in commentstats %}
+    {% for word, count in commentstats_list %}
     <tr>
         <td>{{word}}</td>
         <td>{{count}}</td>
@@ -91,6 +91,10 @@
     {% endfor %}
     </tbody>
 </table>
+        </table>
+        <div class="text-center mb-2">
+            {{ commentstats.word_cloud.to_svg|safe }}
+        </div>
 {% endif %}
 
 {% endblock %}
