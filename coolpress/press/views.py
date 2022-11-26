@@ -13,6 +13,7 @@ from press.forms import CommentForm, PostForm, CategoryForm
 from django.db.models import Count, Max
 from press.models import Category, Post, Comment, CoolUser, PostStatus, CommentStatus
 from press.serializers import CategorySerializer, PostSerializer, AuthorSerializer
+from press.stats_manager import posts_analyzer
 
 def home(request):
     now = datetime.datetime.now()
@@ -40,19 +41,18 @@ def authors(request):
 def render_a_post(post):
     return f'<div style="margin: 20px;padding-bottom: 10px;"><h2>{post.title}</h2><p style="color: gray;">{post.body}</p><p>{post.author.user.username}</p></div>'
 
-
 def posts_list(request):
     objects = Post.objects.filter(status=PostStatus.PUBLISHED)[:20]
     return render(request, 'posts_list.html', {'posts_list': objects})
-
 
 def post_detail(request, post_id):
     post = Post.objects.get(id=post_id)
     data = request.POST or {'votes': 10}
     form = CommentForm(data)
+    stats = posts_analyzer(Post.objects.filter(id=post.id)).top(10)
 
     comments = post.comment_set.order_by('-creation_date').filter(status=CommentStatus.PUBLISHED)
-    return render(request, 'posts_detail.html', {'post_obj': post, 'comment_form': form, 'comments': comments})
+    return render(request, 'posts_detail.html',{'post_obj': post, 'comment_form': form, 'comments': comments, 'stats': stats})
 
 def user_detail(request, user_id):
     coolUser = CoolUser.objects.get(user_id=user_id)
@@ -129,10 +129,8 @@ def category_create(request):
 class AboutView(TemplateView):
     template_name = "about.html"
 
-
 class CategoryListView(ListView):
     model = Category
-
 
 class PostClassBasedListView(ListView):
     paginate_by = 20
@@ -146,7 +144,6 @@ class TrendingPostClassBasedListView(ListView):
     context_object_name = 'posts_list'
     template_name = 'posts_trending_list.html'
 
-
 class PostClassAuthorFilteringListView(PostClassBasedListView):
     paginate_by = 5
 
@@ -154,7 +151,6 @@ class PostClassAuthorFilteringListView(PostClassBasedListView):
         queryset = super(PostClassAuthorFilteringListView, self).get_queryset()
         author = get_object_or_404(CoolUser, user__username = self.kwargs['post_author_username'])
         return queryset.filter(author=author)
-
 
 class PostClassFilteringListView(PostClassBasedListView):
     paginate_by = 5
@@ -164,13 +160,11 @@ class PostClassFilteringListView(PostClassBasedListView):
         category = get_object_or_404(Category, slug=self.kwargs['category_slug'])
         return queryset.filter(category=category)
 
-
 def category_api(request, slug):
     cat = get_object_or_404(Category, slug=slug)
     return JsonResponse(
         dict(slug=cat.slug, label=cat.label)
     )
-
 
 def categories_api(request):
     cats = {}
@@ -180,7 +174,6 @@ def categories_api(request):
     return JsonResponse(
         cats
     )
-
 
 class ModelNonDeletableViewSet(mixins.CreateModelMixin,
                                mixins.RetrieveModelMixin,
@@ -194,7 +187,6 @@ class ModelNonDeletableViewSet(mixins.CreateModelMixin,
     """
     pass
 
-
 class CategoryViewSet(ModelNonDeletableViewSet):
     """
     API endpoint that allows users to be viewed or edited.
@@ -202,7 +194,6 @@ class CategoryViewSet(ModelNonDeletableViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
     """
@@ -218,7 +209,6 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         # Write permissions are only allowed to the owner of the snippet.
         return obj.author == request.user.cooluser
 
-
 class PostViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
@@ -228,6 +218,10 @@ class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly,
                           IsOwnerOrReadOnly]
+
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['category__id']
+
     def get_queryset(self):
         queryset = Post.objects.all().filter(status=PostStatus.PUBLISHED).order_by('-creation_date')
         category_id = self.request.query_params.get('category_id')
@@ -257,3 +251,17 @@ class AuthorsViewSet(viewsets.ModelViewSet):
         instance = self.get_queryset()
         serializer = AuthorSerializer(instance, many=True)
         return Response(serializer.data)
+
+class CategoryAuthors(generics.ListAPIView):
+    serializer_class = AuthorSerializer
+
+    def get_queryset(self):
+        if self.kwargs.__len__() > 0:
+            cslug_or_id = self.kwargs['pk']
+            try:
+                author_id = int(cslug_or_id)
+                return self.queryset.filter(id=author_id)
+            except:
+                cat = Category.objects.get(slug=cslug_or_id)
+                return self.queryset.filter(post__category=cat)
+        return self.queryset
