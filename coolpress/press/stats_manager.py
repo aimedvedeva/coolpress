@@ -4,7 +4,7 @@ from collections import Counter
 
 from django.db.models import QuerySet
 
-from press.models import Post
+from press.models import Post, Comment
 
 with open(os.path.join(os.path.dirname(__file__), 'stopwords.json')) as fr:
     file_stopwords = json.load(fr)
@@ -40,5 +40,12 @@ def posts_analyzer(qs_post: QuerySet[Post], limit=1):
     post_titles = ' '.join(post_qs_titles)
     post_bodies = ' '.join(post_qs_bodies)
     full_msg = f'{post_titles} {post_bodies}'
+    st = Stats(full_msg)
+    return st
+
+def comments_analyzer(qs_post: QuerySet[Comment], limit=1):
+    comment_qs_bodies = qs_post.values_list('body', flat=True)
+    post_bodies = ' '.join(comment_qs_bodies)
+    full_msg = f'{post_bodies}'
     st = Stats(full_msg)
     return st
