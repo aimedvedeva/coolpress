@@ -56,6 +56,29 @@ def post_detail(request, post_id):
     comments = post.comment_set.order_by('-creation_date').filter(status=CommentStatus.PUBLISHED)
     return render(request, 'posts_detail.html',{'post_obj': post, 'comment_form': form, 'comments': comments, 'stats': stats, 'stats_list': stats_list, 'commentstats': commentstats})
 
+def author_details(request, author_id):
+    author = get_object_or_404(CoolUser, pk=author_id)
+    cat_stats = {}
+    author_posts = author.post_set.all()
+    author_char_cnt = 0
+    for post in author_posts:
+        category_id = post.category_id
+        if category_id not in cat_stats:
+            cat_stats[category_id] = 0
+        cat_stats[category_id] += 1
+
+        author_char_cnt += len(post.title)
+        author_char_cnt += len(post.body)
+
+    author_stats = posts_analyzer(author_posts)
+
+    return render(request, 'author_details.html',
+                  {'cat_stats': cat_stats,
+                   'most_used_words': author_stats.top(10),
+                   'user_characters': author_char_cnt,
+                   'author': author
+                   })
+
 def user_detail(request, user_id):
     coolUser = CoolUser.objects.get(user_id=user_id)
     return render(request, 'cooluser_detail.html', {'cooluser': coolUser})

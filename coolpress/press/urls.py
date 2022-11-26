@@ -12,8 +12,9 @@ urlpatterns = [
     path('authors/', views.authors),
     #path('authors/<int:user_id>', views.user_detail, name='user-detail'),
 
-    path('authors/<int:pk>/', DetailCoolUser.as_view(), name='user-detail'),
+#    path('authors/<int:pk>/', DetailCoolUser.as_view(), name='user-detail'),
     path('home/', views.home, name='home'),
+    path('author/<int:author_id>', views.author_details, name='author-detail'),
     path('posts-old/', views.posts_list, name='posts-list'),
     path('post_details/<int:post_id>', views.post_detail, name='posts-detail'),
     path('post/<int:post_id>/comment-add/', views.add_post_comment, name='comment-add'),
